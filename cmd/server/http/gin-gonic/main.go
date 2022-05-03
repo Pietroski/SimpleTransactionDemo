@@ -33,27 +33,6 @@ func main() {
 		},
 	)
 
-	//{ // server initialisation grouping
-	//
-	//	// We do not need waiting group here
-	//	// select statement will hold the server running
-	//	// until an error is returned during initialisation
-	//
-	//	// auth server initialisation
-	//	go func(stopServerSig chan error) {
-	//		if err := authServer.Start(); err != nil {
-	//			stopServerSig <- err
-	//		}
-	//	}(stopServerSig)
-	//
-	//	// manager server initialisation
-	//	go func(stopServerSig chan error) {
-	//		if err := managerServer.Start(); err != nil {
-	//			stopServerSig <- err
-	//		}
-	//	}(stopServerSig)
-	//}
-
 	startServers(
 		stopServerSig,
 		authServer,
