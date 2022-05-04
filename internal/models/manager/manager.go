@@ -1,13 +1,13 @@
 package manager_models
 
 import (
-	bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/manager/bank-accounts"
-	device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/manager/devices"
+	sqlc_bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc"
+	sqlc_device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/devices/sqlc"
 )
 
 type (
 	Stores struct {
-		DeviceStore device_store.Store
-		TxStore     bank_account_store.Store
+		DeviceStore sqlc_device_store.Store
+		TxStore     sqlc_bank_account_store.Store
 	}
 )

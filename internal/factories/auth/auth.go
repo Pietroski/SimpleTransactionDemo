@@ -1,18 +1,19 @@
 package auth_factory
 
 import (
-	auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/auth"
-	auth_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/auth"
 	"github.com/gin-gonic/gin"
+
+	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
+	auth_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/auth"
 )
 
 type AuthServer struct {
 	address   string
 	router    *gin.Engine
-	authStore auth_store.Store
+	authStore sqlc_auth_store.Store
 }
 
-func NewAuthServer(store auth_store.Store) *AuthServer {
+func NewAuthServer(store sqlc_auth_store.Store) *AuthServer {
 	// TODO: apply validations for arguments if needed
 
 	factory := &AuthServer{

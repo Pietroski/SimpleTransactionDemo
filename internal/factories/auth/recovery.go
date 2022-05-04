@@ -1,8 +1,9 @@
 package auth_factory
 
 import (
-	auth_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/auth"
 	"github.com/gin-gonic/gin"
+
+	auth_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/auth"
 )
 
 type RecoveryFactory struct {

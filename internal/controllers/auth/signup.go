@@ -1,15 +1,16 @@
 package auth_controller
 
 import (
-	auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/auth"
 	"github.com/gin-gonic/gin"
+
+	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
 )
 
 type signUpController struct {
-	store auth_store.Store
+	store sqlc_auth_store.Store
 }
 
-func newSignUpController(store auth_store.Store) *signUpController {
+func newSignUpController(store sqlc_auth_store.Store) *signUpController {
 	// TODO: apply validations for arguments if needed
 
 	controller := &signUpController{

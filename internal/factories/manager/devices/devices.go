@@ -1,8 +1,9 @@
 package devices_factory
 
 import (
-	device_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/manager/devices"
 	"github.com/gin-gonic/gin"
+
+	device_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/manager/devices"
 )
 
 type DeviceFactory struct {

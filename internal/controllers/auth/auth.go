@@ -1,7 +1,7 @@
 package auth_controller
 
 import (
-	auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/auth"
+	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
 )
 
 type AuthController struct {
@@ -10,7 +10,7 @@ type AuthController struct {
 	Recovery *recoveryController
 }
 
-func NewAuthController(store auth_store.Store) *AuthController {
+func NewAuthController(store sqlc_auth_store.Store) *AuthController {
 	// TODO: apply validations for arguments if needed
 
 	controller := &AuthController{

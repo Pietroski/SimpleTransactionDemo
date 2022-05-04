@@ -2,14 +2,17 @@ package main
 
 import (
 	"database/sql"
-	"github.com/Pietroski/SimpleTransactionDemo/internal/models/server"
+
+	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
+	sqlc_bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc"
+	sqlc_device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/devices/sqlc"
+
 	"log"
 
-	bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/manager/bank-accounts"
+	"github.com/Pietroski/SimpleTransactionDemo/internal/models/server"
+
 	manager_models "github.com/Pietroski/SimpleTransactionDemo/internal/models/manager"
 
-	auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/auth"
-	device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/manager/devices"
 	auth_factory "github.com/Pietroski/SimpleTransactionDemo/internal/factories/auth"
 	manager_factory "github.com/Pietroski/SimpleTransactionDemo/internal/factories/manager"
 )
@@ -20,12 +23,12 @@ var (
 
 func main() {
 	// TODO: pass database conn
-	authStore := auth_store.NewStore(&sql.DB{})
+	authStore := sqlc_auth_store.NewStore(&sql.DB{})
 	authServer := auth_factory.NewAuthServer(authStore)
 
 	// TODO: pass database conn
-	deviceStore := device_store.NewStore(&sql.DB{})
-	txStore := bank_account_store.NewStore(&sql.DB{})
+	deviceStore := sqlc_device_store.NewStore(&sql.DB{})
+	txStore := sqlc_bank_account_store.NewStore(&sql.DB{})
 	managerServer := manager_factory.NewManagerServer(
 		manager_models.Stores{
 			DeviceStore: deviceStore,

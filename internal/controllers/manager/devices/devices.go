@@ -1,15 +1,16 @@
 package device_controller
 
 import (
-	device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/sqlc/manager/devices"
 	"github.com/gin-gonic/gin"
+
+	sqlc_device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/devices/sqlc"
 )
 
 type DeviceController struct {
-	store device_store.Store
+	store sqlc_device_store.Store
 }
 
-func NewDeviceController(store device_store.Store) *DeviceController {
+func NewDeviceController(store sqlc_device_store.Store) *DeviceController {
 	// TODO: apply validations for arguments if needed
 
 	controller := &DeviceController{

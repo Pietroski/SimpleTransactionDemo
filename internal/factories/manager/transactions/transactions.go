@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	bank_account_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/manager/transactions"
+	mocked_auth_middleware "github.com/Pietroski/SimpleTransactionDemo/internal/middlewares/auth/mocked"
 )
 
 type TransactionFactory struct {
@@ -22,10 +23,13 @@ func NewTransactionFactory(controller *bank_account_controller.TransactionContro
 
 func (f *TransactionFactory) Handle(engine *gin.RouterGroup) *gin.RouterGroup {
 	transactionGroup := engine.Group("/transactions")
-	transactionGroup.Use()
+	transactionGroup.Use(mocked_auth_middleware.MockedAuthMiddleware)
 	{
+		transactionGroup.POST("/transfer", f.transactionController.Transfer)
 		transactionGroup.POST("/deposit", f.transactionController.Deposit)
 		transactionGroup.POST("/withdraw", f.transactionController.Withdraw)
+		transactionGroup.GET("/wallet", f.transactionController.GetWallet)
+		transactionGroup.GET("/wallets", f.transactionController.GetWallets)
 		transactionGroup.GET("/balance", f.transactionController.GetBalance)
 		transactionGroup.GET("/history", f.transactionController.GetHistory)
 	}
