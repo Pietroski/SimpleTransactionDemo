@@ -15,19 +15,21 @@ get-migrator:
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go mod tidy
 	go mod vendor
-#	go get -u -d github.com/golang-migrate/migrate/cmd/migrate
-#	cd $GOPATH/src/github.com/golang-migrate/migrate/cmd/migrate
-#	git checkout $TAG  # e.g. v4.15.2
-#	go build -tags 'postgres' -ldflags="-X main.Version=$(git describe --tags)" -o $GOPATH/bin/migrate $GOPATH/src/github.com/golang-migrate/migrate/cmd/migrate
-#	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-#	go mod tidy
-#	go mod vendor
 
-migrate-upgrade:
-	./scripts/migrations/postgresql/go-migrate/upgrade/run.sh
+migrate-init:
+	./scripts/migrations/postgresql/go-migrate/run/types/init/run.sh
+
+migrate:
+	@./scripts/migrations/postgresql/go-migrate/run/migrate.sh ${DOMAIN_NAME} ${DB_ENV_NAME} ${TYPE} ${OFFSET}
 
 migrate-all-up:
-	@./scripts/migrations/postgresql/go-migrate/run/migrate-all-up.sh
+	@./scripts/migrations/postgresql/go-migrate/run/types/up/migrate-all-up.sh
+
+migrate-all-down:
+	@./scripts/migrations/postgresql/go-migrate/run/types/down/migrate-all-down.sh
+
+populate-playground:
+	echo @./scripts/migrations/postgresql/go-migrate/run/
 
 build-local:
 	./scripts/build/build-local.sh

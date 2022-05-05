@@ -2,8 +2,9 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"log"
+
+	_ "github.com/lib/pq"
 
 	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
 	sqlc_bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc"

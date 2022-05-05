@@ -2,8 +2,9 @@ package sqlc_bank_account_store
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // TransferTxParams contains the input parameters of the transfer transaction
@@ -33,8 +34,7 @@ func (store *transactionStore) TransferTx(ctx context.Context, args TransferTxPa
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
-
-		if result.TransactionRecord, err = q.LogTransaction(
+		result.TransactionRecord, err = q.LogTransaction(
 			ctx,
 			LogTransactionParams{
 				FromAccountID: args.FromAccountID,
@@ -45,7 +45,8 @@ func (store *transactionStore) TransferTx(ctx context.Context, args TransferTxPa
 				Amount:        args.Amount,
 				CreatedAt:     time.Now(),
 			},
-		); err != nil {
+		)
+		if err != nil {
 			return err
 		}
 
