@@ -1,16 +1,16 @@
 version: '3.8'
 services:
-  truphone-db:
+  simple-transaction-demo-playground-db:
     image: postgres:14.2-alpine
     restart: always
     environment:
       - POSTGRES_USER=manager
       - POSTGRES_PASSWORD=manager
-      - POSTGRES_DB=devices_db
+      - POSTGRES_DB=playground_db
     ports:
       - '5432:5432'
     volumes:
-      - truphone-db:/var/lib/postgresql/data
+      - simple-transaction-demo-playground-db:/var/lib/postgresql/data
 volumes:
-  truphone-db:
+  simple-transaction-demo-playground-db:
     driver: local

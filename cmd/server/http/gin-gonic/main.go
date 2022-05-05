@@ -2,19 +2,16 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
+	"log"
 
 	sqlc_auth_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/auth/sqlc"
 	sqlc_bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc"
 	sqlc_device_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/devices/sqlc"
-
-	"log"
-
-	"github.com/Pietroski/SimpleTransactionDemo/internal/models/server"
-
-	manager_models "github.com/Pietroski/SimpleTransactionDemo/internal/models/manager"
-
 	auth_factory "github.com/Pietroski/SimpleTransactionDemo/internal/factories/auth"
 	manager_factory "github.com/Pietroski/SimpleTransactionDemo/internal/factories/manager"
+	manager_models "github.com/Pietroski/SimpleTransactionDemo/internal/models/manager"
+	"github.com/Pietroski/SimpleTransactionDemo/internal/models/server"
 )
 
 var (

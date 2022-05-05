@@ -1,6 +1,7 @@
 package transaction_controller
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/google/uuid"
 	"net/http"
@@ -61,6 +62,11 @@ func (c *TransactionController) Transfer(ctx *gin.Context) {
 		},
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, notification.ClientError.Response(err))
+			return
+		}
+
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}
@@ -73,6 +79,11 @@ func (c *TransactionController) Transfer(ctx *gin.Context) {
 		},
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, notification.ClientError.Response(err))
+			return
+		}
+
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}

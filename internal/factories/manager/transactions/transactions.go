@@ -28,7 +28,6 @@ func (f *TransactionFactory) Handle(engine *gin.RouterGroup) *gin.RouterGroup {
 		transactionGroup.POST("/transfer", f.transactionController.Transfer)
 		transactionGroup.POST("/deposit", f.transactionController.Deposit)
 		transactionGroup.POST("/withdraw", f.transactionController.Withdraw)
-		transactionGroup.GET("/wallet", f.transactionController.GetWallet)
 		transactionGroup.GET("/wallets", f.transactionController.GetWallets)
 		transactionGroup.GET("/balance", f.transactionController.GetBalance)
 		transactionGroup.GET("/history", f.transactionController.GetHistory)

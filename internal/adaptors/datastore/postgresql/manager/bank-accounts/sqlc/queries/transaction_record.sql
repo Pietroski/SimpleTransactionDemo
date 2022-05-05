@@ -1,7 +1,7 @@
 -- name: LogTransaction :one
 INSERT INTO transaction_record
-(from_account_id, from_wallet_id, to_account_id, to_wallet_id, coin, amount, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+(from_account_id, from_wallet_id, to_account_id, to_wallet_id, coin, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: ListTransactionLogs :many

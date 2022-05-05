@@ -1,10 +1,10 @@
 -- -- name: LogTransactionWithEntries :one
 -- WITH transaction_record
 --          (from_account_id, from_wallet_id, to_account_id, to_wallet_id, coin, amount, created_at)
---          AS (VALUES (sqlc.arg(from_account_id), sqlc.arg(from_wallet_id), sqlc.arg(to_account_id),
---                      sqlc.arg(to_wallet_id),
---                      sqlc.arg(coin), sqlc.arg(amount),
---                      sqlc.arg(created_at))),
+--          AS (VALUES (go-migrate.arg(from_account_id), go-migrate.arg(from_wallet_id), go-migrate.arg(to_account_id),
+--                      go-migrate.arg(to_wallet_id),
+--                      go-migrate.arg(coin), go-migrate.arg(amount),
+--                      go-migrate.arg(created_at))),
 --      ins1 AS (
 --          INSERT INTO entry_record
 --              (account_id, wallet_id, coin, amount, created_at)
