@@ -16,11 +16,11 @@ type Store interface {
 	DepositTx(
 		ctx context.Context,
 		args DepositTxParams,
-	) (Wallet, error)
+	) (DepositTxResult, error)
 	WithdrawTx(
 		ctx context.Context,
 		args WithdrawTxParams,
-	) (Wallet, error)
+	) (WithdrawTxResult, error)
 }
 
 type transactionStore struct {

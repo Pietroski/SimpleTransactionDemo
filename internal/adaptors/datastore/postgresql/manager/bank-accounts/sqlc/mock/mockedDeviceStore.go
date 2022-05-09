@@ -37,10 +37,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // DepositTx mocks base method.
-func (m *MockStore) DepositTx(arg0 context.Context, arg1 sqlc_bank_account_store.DepositTxParams) (sqlc_bank_account_store.Wallet, error) {
+func (m *MockStore) DepositTx(arg0 context.Context, arg1 sqlc_bank_account_store.DepositTxParams) (sqlc_bank_account_store.DepositTxResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DepositTx", arg0, arg1)
-	ret0, _ := ret[0].(sqlc_bank_account_store.Wallet)
+	ret0, _ := ret[0].(sqlc_bank_account_store.DepositTxResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -352,10 +352,10 @@ func (mr *MockStoreMockRecorder) UpdateAccountWalletBalance(arg0, arg1 interface
 }
 
 // WithdrawTx mocks base method.
-func (m *MockStore) WithdrawTx(arg0 context.Context, arg1 sqlc_bank_account_store.WithdrawTxParams) (sqlc_bank_account_store.Wallet, error) {
+func (m *MockStore) WithdrawTx(arg0 context.Context, arg1 sqlc_bank_account_store.WithdrawTxParams) (sqlc_bank_account_store.WithdrawTxResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WithdrawTx", arg0, arg1)
-	ret0, _ := ret[0].(sqlc_bank_account_store.Wallet)
+	ret0, _ := ret[0].(sqlc_bank_account_store.WithdrawTxResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

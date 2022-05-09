@@ -31,6 +31,15 @@ migrate-all-down:
 populate-playground:
 	echo @./scripts/migrations/postgresql/go-migrate/run/
 
+test-unit:
+	go test -race -v ./...
+
+test-unit-cover:
+	go test -coverprofile ./docs/reports/tests/unit/cover.out ./...
+
+test-unit-cover-report:
+	go tool cover -html=./docs/reports/tests/unit/cover.out
+
 build-local:
 	./scripts/build/build-local.sh
 

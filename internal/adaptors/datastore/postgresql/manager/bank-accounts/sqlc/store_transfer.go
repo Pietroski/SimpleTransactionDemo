@@ -8,24 +8,27 @@ import (
 )
 
 // TransferTxParams contains the input parameters of the transfer transaction
-type TransferTxParams struct {
-	FromAccountID uuid.UUID        `json:"fromAccountId"`
-	FromWalletID  uuid.UUID        `json:"fromWalletID"`
-	ToAccountID   uuid.UUID        `json:"toAccountId"`
-	ToWalletID    uuid.UUID        `json:"toWalletID"`
-	Amount        int64            `json:"amount"`
-	Coin          CryptoCurrencies `json:"coin"`
-}
+type (
+	TransferTxParams struct {
+		FromAccountID uuid.UUID        `json:"fromAccountId"`
+		FromWalletID  uuid.UUID        `json:"fromWalletID"`
+		ToAccountID   uuid.UUID        `json:"toAccountId"`
+		ToWalletID    uuid.UUID        `json:"toWalletID"`
+		Amount        int64            `json:"amount"`
+		Coin          CryptoCurrencies `json:"coin"`
+	}
 
-// TransferTxResult is the result of the transfer transaction
-type TransferTxResult struct {
-	TransactionRecord TransactionRecord `json:"transactionRecord"`
-	FromEntry         EntryRecord       `json:"fromEntry"`
-	ToEntry           EntryRecord       `json:"toEntry"`
-	FromWallet        Wallet            `json:"fromWallet"`
-	ToWallet          Wallet            `json:"toWallet"`
-	TransferredAmount int64             `json:"amount"`
-}
+	// TransferTxResult is the result of the transfer transaction
+	TransferTxResult struct {
+		TransactionRecord TransactionRecord `json:"transactionRecord"`
+		FromEntry         EntryRecord       `json:"fromEntry"`
+		ToEntry           EntryRecord       `json:"toEntry"`
+		FromWallet        Wallet            `json:"fromWallet"`
+		ToWallet          Wallet            `json:"toWallet"`
+		TransferredAmount int64             `json:"amount"`
+		TransferredCoin   CryptoCurrencies  `json:"coin"`
+	}
+)
 
 // TransferTx performs a money transfer from one account to the other.
 // It creates the transfer, add account entries, and update accounts' balance within a database transaction
@@ -91,6 +94,8 @@ func (store *transactionStore) TransferTx(ctx context.Context, args TransferTxPa
 		return err
 	})
 
+	result.TransferredAmount = args.Amount
+	result.TransferredCoin = args.Coin
 	return result, err
 }
 

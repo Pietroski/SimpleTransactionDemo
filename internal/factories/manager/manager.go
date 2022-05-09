@@ -11,7 +11,7 @@ import (
 
 type ManagerServer struct {
 	address string
-	router  *gin.Engine
+	Router  *gin.Engine
 
 	stores manager_models.Stores
 }
@@ -57,11 +57,11 @@ func (f *ManagerServer) Handle() {
 		}
 	}
 
-	f.router = r
+	f.Router = r
 }
 
 func (f *ManagerServer) Start() error {
 	// TODO: remove this after implemented via envs
 	f.address = ":8089"
-	return f.router.Run(f.address)
+	return f.Router.Run(f.address)
 }

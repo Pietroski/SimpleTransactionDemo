@@ -2,11 +2,10 @@ package mocked_auth_middleware
 
 import (
 	"errors"
+	pkg_auth_extractor "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	pkg_auth "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 )
 
 const (
@@ -18,15 +17,17 @@ var (
 )
 
 func MockedAuthMiddleware(ctx *gin.Context) {
-	rawBearToken := ctx.Request.Header.Get(AuthorizationKey)
-	bearToken, err := pkg_auth.ExtractBearToken(rawBearToken)
+	rawBearerToken := ctx.Request.Header.Get(AuthorizationKey)
+	BearerToken, err := pkg_auth_extractor.ExtractBearerToken(rawBearerToken)
 	if err != nil {
 		_ = ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
-	authValue, ok := MockedAuthMap[MockedBearToken(bearToken)]
+	authValue, ok := MockedAuthMap[MockedBearerToken(BearerToken)]
 	if !ok {
-		_ = ctx.AbortWithError(http.StatusUnauthorized, pkg_auth.ErrInvalidAuthBearToken)
+		_ = ctx.AbortWithError(http.StatusUnauthorized, pkg_auth_extractor.ErrInvalidAuthBearerToken)
+		return
 	}
 
 	ctx.Set(CtxMockedAuthKey.String(), authValue)
@@ -36,7 +37,7 @@ func MockedAuthMiddleware(ctx *gin.Context) {
 func MockedAuthMiddlewareExtractor(ctx *gin.Context) (MockedAuthValues, error) {
 	rawAuthValue, ok := ctx.Get(CtxMockedAuthKey.String())
 	if !ok {
-		return MockedAuthValues{}, pkg_auth.ErrInvalidAuthBearToken
+		return MockedAuthValues{}, pkg_auth_extractor.ErrInvalidAuthBearerToken
 	}
 
 	authValue, ok := rawAuthValue.(MockedAuthValues)

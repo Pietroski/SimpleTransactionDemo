@@ -8,4 +8,5 @@ import _ "github.com/golang/mock/mockgen/model"
 //go:generate mockgen -package mockedTransactionStore -destination ../../../internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc/mock/mockedDeviceStore.go github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc Store
 
 // external - usually server clients
-// wrong example -> //go:generate mockgen -package mockedUserStore -destination ../../../internal/adaptors/datastore/postgresql/go-migrate/auth/user/mock/mockedUserStore.go github.com/Pietroski/SimpleTransactionDemo/adaptors/services/datastore/postgresql/go-migrate/auth/user/ Store
+//go:generate mockgen -package mocked_gin -destination ../../../pkg/mocks/gin/mocked_response_writer.go github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/gin ResponseWriter
+////go:generate mockgen -package mocked_gin -destination ../../../pkg/mocks/gin/mocked_context.go github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/gin Ctx

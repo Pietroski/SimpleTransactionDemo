@@ -17,22 +17,22 @@ func (cc CryptoCurrencies) String() string {
 
 type (
 	TransactionRequest struct {
-		ToAccountID uuid.UUID        `json:"toAccountId"`
-		Amount      int64            `json:"amount"`
-		Coin        CryptoCurrencies `json:"coin"`
+		ToAccountID uuid.UUID        `json:"toAccountId" binding:"required"`
+		Amount      int64            `json:"amount" binding:"required"`
+		Coin        CryptoCurrencies `json:"coin" binding:"required"`
 	}
 
 	DepositRequest struct {
-		Amount int64            `json:"amount"`
-		Coin   CryptoCurrencies `json:"coin"`
+		Amount int64            `json:"amount" binding:"required"`
+		Coin   CryptoCurrencies `json:"coin" binding:"required"`
 	}
 
 	WithdrawRequest struct {
-		Amount int64            `json:"amount"`
-		Coin   CryptoCurrencies `json:"coin"`
+		Amount int64            `json:"amount" binding:"required"`
+		Coin   CryptoCurrencies `json:"coin" binding:"required"`
 	}
 
 	BalanceRequest struct {
-		Coin CryptoCurrencies `json:"coin"`
+		Coin CryptoCurrencies `json:"coin" binding:"required"`
 	}
 )

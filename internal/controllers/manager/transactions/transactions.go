@@ -1,11 +1,7 @@
 package transaction_controller
 
 import (
-	"database/sql"
-	"errors"
 	"net/http"
-
-	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 
@@ -30,78 +26,37 @@ func NewTransactionController(store sqlc_bank_account_store.Store) *TransactionC
 }
 
 func (c *TransactionController) Transfer(ctx *gin.Context) {
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
 	var transferPayload manager_models.TransactionRequest
-	if err = ctx.ShouldBindJSON(&transferPayload); err != nil {
+	if err := ctx.ShouldBindJSON(&transferPayload); err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}
 
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	fromWallet, statusCode, ginResp := c.getTxWallet(ctx, accountID, transferPayload.Coin.String())
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
+		return
+	}
+	toWallet, statusCode, ginResp := c.getTxWallet(ctx, transferPayload.ToAccountID, transferPayload.Coin.String())
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
-	fromWallet, err := c.store.GetTxWallet(
+	txResult, statusCode, ginResp := c.tx(
 		ctx,
-		sqlc_bank_account_store.GetTxWalletParams{
-			AccountID: accountID,
-			Coin:      sqlc_bank_account_store.CryptoCurrencies(transferPayload.Coin),
-		},
+		fromWallet, toWallet,
+		transferPayload.Amount,
+		transferPayload.Coin.String(),
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, notification.ClientError.Response(err))
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-		return
-	}
-
-	toWallet, err := c.store.GetTxWallet(
-		ctx,
-		sqlc_bank_account_store.GetTxWalletParams{
-			AccountID: transferPayload.ToAccountID,
-			Coin:      sqlc_bank_account_store.CryptoCurrencies(transferPayload.Coin),
-		},
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, notification.ClientError.Response(err))
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-		return
-	}
-
-	txResult, err := c.store.TransferTx(
-		ctx,
-		sqlc_bank_account_store.TransferTxParams{
-			FromAccountID: fromWallet.AccountID,
-			FromWalletID:  fromWallet.WalletID,
-			ToAccountID:   toWallet.AccountID,
-			ToWalletID:    toWallet.WalletID,
-			Amount:        transferPayload.Amount,
-			Coin:          sqlc_bank_account_store.CryptoCurrencies(transferPayload.Coin),
-		},
-	)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
@@ -110,38 +65,23 @@ func (c *TransactionController) Transfer(ctx *gin.Context) {
 }
 
 func (c *TransactionController) Deposit(ctx *gin.Context) {
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
 	var depositPayload manager_models.DepositRequest
-	if err = ctx.ShouldBindJSON(&depositPayload); err != nil {
+	if err := ctx.ShouldBindJSON(&depositPayload); err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}
 
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	wallet, statusCode, ginResp := c.getTxWallet(ctx, accountID, depositPayload.Coin.String())
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
-
-	wallet, err := c.store.GetTxWallet(
-		ctx,
-		sqlc_bank_account_store.GetTxWalletParams{
-			AccountID: accountID,
-			Coin:      sqlc_bank_account_store.CryptoCurrencies(depositPayload.Coin),
-		},
-	)
 
 	depositResult, err := c.store.DepositTx(ctx, sqlc_bank_account_store.DepositTxParams{
 		ToAccountID: wallet.AccountID,
@@ -149,7 +89,6 @@ func (c *TransactionController) Deposit(ctx *gin.Context) {
 		Amount:      depositPayload.Amount,
 		Coin:        sqlc_bank_account_store.CryptoCurrencies(depositPayload.Coin),
 	})
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
@@ -160,51 +99,36 @@ func (c *TransactionController) Deposit(ctx *gin.Context) {
 }
 
 func (c *TransactionController) Withdraw(ctx *gin.Context) {
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
-	var withdrawPayload manager_models.WithdrawRequest
-	if err = ctx.ShouldBindJSON(&withdrawPayload); err != nil {
+	var depositPayload manager_models.WithdrawRequest
+	if err := ctx.ShouldBindJSON(&depositPayload); err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}
 
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	wallet, statusCode, ginResp := c.getTxWallet(ctx, accountID, depositPayload.Coin.String())
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
-
-	wallet, err := c.store.GetTxWallet(
-		ctx,
-		sqlc_bank_account_store.GetTxWalletParams{
-			AccountID: accountID,
-			Coin:      sqlc_bank_account_store.CryptoCurrencies(withdrawPayload.Coin),
-		},
-	)
 
 	withdrawResult, err := c.store.WithdrawTx(ctx, sqlc_bank_account_store.WithdrawTxParams{
 		FromAccountID: wallet.AccountID,
 		FromWalletID:  wallet.WalletID,
-		Amount:        withdrawPayload.Amount,
-		Coin:          sqlc_bank_account_store.CryptoCurrencies(withdrawPayload.Coin),
+		Amount:        depositPayload.Amount,
+		Coin:          sqlc_bank_account_store.CryptoCurrencies(depositPayload.Coin),
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
 		return
 	}
 
-	// TODO: beautify and filter withdrawResult
+	// TODO: beautify and filter depositResult
 	ctx.JSON(http.StatusOK, withdrawResult)
 }
 
@@ -213,29 +137,15 @@ func (c *TransactionController) GetBalance(ctx *gin.Context) {
 }
 
 func (c *TransactionController) getWallet(ctx *gin.Context) {
-	// TODO: implement me!!
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
 	var balancePayload manager_models.BalanceRequest
-	if err = ctx.ShouldBindJSON(&balancePayload); err != nil {
+	if err := ctx.ShouldBindJSON(&balancePayload); err != nil {
 		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-		return
-	}
-
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
 		return
 	}
 
@@ -254,23 +164,9 @@ func (c *TransactionController) getWallet(ctx *gin.Context) {
 }
 
 func (c *TransactionController) GetWallets(ctx *gin.Context) {
-	// TODO: implement me!!
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
-		return
-	}
-
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
@@ -285,23 +181,9 @@ func (c *TransactionController) GetWallets(ctx *gin.Context) {
 }
 
 func (c *TransactionController) GetHistory(ctx *gin.Context) {
-	// TODO: implement me!!
-	authInfo, err := mocked_auth_middleware.MockedAuthMiddlewareExtractor(ctx)
-	if err != nil {
-		if errors.As(err, &mocked_auth_middleware.ErrToAssertVar) {
-			ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
-			return
-		}
-
-		// errors.As(err, &pkg_auth.ErrInvalidAuthBearToken)
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
-		return
-	}
-
-	rawAccountID := authInfo.AccountID
-	accountID, err := uuid.Parse(rawAccountID.String())
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, notification.ClientError.Response(err))
+	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
