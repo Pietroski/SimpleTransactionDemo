@@ -955,3 +955,161 @@ func TestTransactionController_Withdraw(t *testing.T) {
 		})
 	}
 }
+
+func TestTransactionController_GetWalletBalance(t *testing.T) {
+	tests := []struct {
+		name       string
+		prepareReq func() *http.Request
+		stubs      func(txStore *mockedTransactionStore.MockStore)
+		assertResp func(resp *http.Response)
+	}{
+		{
+			name: "successfully get the user balance of a specific wallet",
+			prepareReq: func() *http.Request {
+				body := &manager_models.BalanceRequest{
+					Coin: manager_models.CryptoCurrenciesPIETROSKICOIN,
+				}
+				reqBody, err := json.Marshal(body)
+				require.NoError(t, err)
+
+				payload := bytes.NewReader(reqBody)
+				req, err := http.NewRequest(http.MethodGet, "/v1/manager/transactions/balance", payload)
+				require.NoError(t, err)
+				req.Header.Set(
+					mocked_auth_middleware.AuthorizationKey,
+					"Bearer "+mocked_auth_middleware.MainMockedBearerToken.String(),
+				)
+
+				return req
+			},
+			stubs: func(txStore *mockedTransactionStore.MockStore) {
+				txStore.
+					EXPECT().
+					GetTxWallet(gomock.Any(), sqlc_bank_account_store.GetTxWalletParams{
+						AccountID: mocked_auth_middleware.MainAccountID.ParseForce(),
+						Coin:      sqlc_bank_account_store.CryptoCurrenciesPIETROSKICOIN,
+					}).
+					Times(1).
+					Return(sqlc_bank_account_store.Wallet{
+						RowID:     1,
+						WalletID:  mocked_auth_middleware.MainPietroskiCoinWalletID.ParseForce(),
+						AccountID: mocked_auth_middleware.MainAccountID.ParseForce(),
+						Coin:      sqlc_bank_account_store.CryptoCurrenciesPIETROSKICOIN,
+						Balance:   100,
+						CreatedAt: time.Time{},
+						UpdatedAt: time.Time{},
+					}, nil)
+			},
+			assertResp: func(resp *http.Response) {
+				require.Contains(
+					t,
+					resp.Status,
+					fmt.Sprintf("%d", http.StatusOK),
+				)
+			},
+		},
+		{
+			name: "fails - wrong account id",
+			prepareReq: func() *http.Request {
+				body := &manager_models.BalanceRequest{
+					Coin: manager_models.CryptoCurrenciesPIETROSKICOIN,
+				}
+				reqBody, err := json.Marshal(body)
+				require.NoError(t, err)
+
+				payload := bytes.NewReader(reqBody)
+				req, err := http.NewRequest(http.MethodGet, "/v1/manager/transactions/balance", payload)
+				require.NoError(t, err)
+				req.Header.Set(
+					mocked_auth_middleware.AuthorizationKey,
+					"Bearer "+mocked_auth_middleware.FailureMockedBearerToken.String(),
+				)
+
+				return req
+			},
+			stubs: func(txStore *mockedTransactionStore.MockStore) {},
+			assertResp: func(resp *http.Response) {
+				require.Contains(
+					t,
+					resp.Status,
+					fmt.Sprintf("%d", http.StatusBadRequest),
+				)
+			},
+		},
+		{
+			name: "fails - payload validation error",
+			prepareReq: func() *http.Request {
+				req, err := http.NewRequest(http.MethodGet, "/v1/manager/transactions/balance", nil)
+				require.NoError(t, err)
+				req.Header.Set(
+					mocked_auth_middleware.AuthorizationKey,
+					"Bearer "+mocked_auth_middleware.MainMockedBearerToken.String(),
+				)
+
+				return req
+			},
+			stubs: func(txStore *mockedTransactionStore.MockStore) {},
+			assertResp: func(resp *http.Response) {
+				require.Contains(
+					t,
+					resp.Status,
+					fmt.Sprintf("%d", http.StatusInternalServerError),
+				)
+			},
+		},
+		{
+			name: "successfully get the user balance of a specific wallet",
+			prepareReq: func() *http.Request {
+				body := &manager_models.BalanceRequest{
+					Coin: manager_models.CryptoCurrenciesPIETROSKICOIN,
+				}
+				reqBody, err := json.Marshal(body)
+				require.NoError(t, err)
+
+				payload := bytes.NewReader(reqBody)
+				req, err := http.NewRequest(http.MethodGet, "/v1/manager/transactions/balance", payload)
+				require.NoError(t, err)
+				req.Header.Set(
+					mocked_auth_middleware.AuthorizationKey,
+					"Bearer "+mocked_auth_middleware.MainMockedBearerToken.String(),
+				)
+
+				return req
+			},
+			stubs: func(txStore *mockedTransactionStore.MockStore) {
+				txStore.
+					EXPECT().
+					GetTxWallet(gomock.Any(), sqlc_bank_account_store.GetTxWalletParams{
+						AccountID: mocked_auth_middleware.MainAccountID.ParseForce(),
+						Coin:      sqlc_bank_account_store.CryptoCurrenciesPIETROSKICOIN,
+					}).
+					Times(1).
+					Return(sqlc_bank_account_store.Wallet{}, AnyErr)
+			},
+			assertResp: func(resp *http.Response) {
+				require.Contains(
+					t,
+					resp.Status,
+					fmt.Sprintf("%d", http.StatusInternalServerError),
+				)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			txStore := mockedTransactionStore.NewMockStore(ctrl)
+			server := manager_factory.NewManagerServer(manager_models.Stores{
+				DeviceStore: nil,
+				TxStore:     txStore,
+			})
+			recorder := httptest.NewRecorder()
+
+			tt.stubs(txStore)
+			req := tt.prepareReq()
+			server.Router.ServeHTTP(recorder, req)
+			t.Log(recorder)
+			tt.assertResp(recorder.Result())
+		})
+	}
+}

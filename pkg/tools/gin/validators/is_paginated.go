@@ -4,8 +4,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func IsPaginated(ctx gin.Context) bool {
-	//ctx.Query()
+type (
+	Pagination struct {
+		//
+	}
+
+	PaginatedQuery struct {
+		//
+	}
+)
+
+func IsCorrectlyPaginated(ctx gin.Context) (*Pagination, bool) {
+	ctx.ShouldBindQuery()
 
 	return true
 }
