@@ -149,7 +149,7 @@ func TestTransactionController_Transfer(t *testing.T) {
 				require.Contains(
 					t,
 					resp.Status,
-					fmt.Sprintf("%d", http.StatusCreated),
+					fmt.Sprintf("%d", http.StatusOK),
 				)
 			},
 		},

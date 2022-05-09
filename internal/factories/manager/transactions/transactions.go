@@ -11,7 +11,9 @@ type TransactionFactory struct {
 	transactionController *bank_account_controller.TransactionController
 }
 
-func NewTransactionFactory(controller *bank_account_controller.TransactionController) *TransactionFactory {
+func NewTransactionFactory(
+	controller *bank_account_controller.TransactionController,
+) *TransactionFactory {
 	// TODO: apply validations for arguments if needed
 
 	factory := &TransactionFactory{
@@ -28,8 +30,8 @@ func (f *TransactionFactory) Handle(engine *gin.RouterGroup) *gin.RouterGroup {
 		transactionGroup.POST("/transfer", f.transactionController.Transfer)
 		transactionGroup.POST("/deposit", f.transactionController.Deposit)
 		transactionGroup.POST("/withdraw", f.transactionController.Withdraw)
+		transactionGroup.GET("/balance", f.transactionController.GetWalletBalance)
 		transactionGroup.GET("/wallets", f.transactionController.GetWallets)
-		transactionGroup.GET("/balance", f.transactionController.GetBalance)
 		transactionGroup.GET("/history", f.transactionController.GetHistory)
 	}
 

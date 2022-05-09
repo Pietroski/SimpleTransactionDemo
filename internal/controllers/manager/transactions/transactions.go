@@ -132,11 +132,7 @@ func (c *TransactionController) Withdraw(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, withdrawResult)
 }
 
-func (c *TransactionController) GetBalance(ctx *gin.Context) {
-	c.getWallet(ctx)
-}
-
-func (c *TransactionController) getWallet(ctx *gin.Context) {
+func (c *TransactionController) GetWalletBalance(ctx *gin.Context) {
 	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
 	if statusCode != 0 {
 		ctx.JSON(statusCode, ginResp)
@@ -160,7 +156,6 @@ func (c *TransactionController) getWallet(ctx *gin.Context) {
 
 	// TODO: beautify and filter wallet
 	ctx.JSON(http.StatusOK, wallet)
-
 }
 
 func (c *TransactionController) GetWallets(ctx *gin.Context) {
