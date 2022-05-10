@@ -1796,7 +1796,7 @@ func TestTransactionController_GetCoinHistory(t *testing.T) {
 		{
 			name: "fails - wrong query",
 			prepareReq: func() *http.Request {
-				uri := fmt.Sprintf("?coin=%v", "invalid-uri")
+				uri := fmt.Sprintf("?coin=%v", "invalid-coin")
 				req, err := http.NewRequest(
 					http.MethodGet,
 					"/v1/manager/transactions/history"+uri,

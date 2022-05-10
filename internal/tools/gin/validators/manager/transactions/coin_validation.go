@@ -1,4 +1,4 @@
-package internal_gin_custom_validators
+package internal_gin_transactions_validators
 
 import (
 	manager_models "github.com/Pietroski/SimpleTransactionDemo/internal/models/manager"
@@ -8,8 +8,8 @@ import (
 var CoinCustomValidation validator.Func = func(fl validator.FieldLevel) bool {
 	coin, ok := fl.Field().Interface().(manager_models.CryptoCurrencies)
 	if ok {
-		return coin.IsCryptoCurrency() || coin == ""
+		return (coin).IsCryptoCurrency() || coin == ""
 	}
 
-	return true
+	return false
 }

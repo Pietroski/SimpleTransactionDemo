@@ -192,3 +192,30 @@ func (c *TransactionController) getCoinHistory(
 	// TODO: beautify and filter entries
 	return entries, 0, nil
 }
+
+func (c *TransactionController) getFullHistory(
+	ctx *gin.Context,
+	accountID uuid.UUID,
+	pagination *pkg_gin_custom_validators.Pagination,
+) ([]sqlc_bank_account_store.EntryRecord, int, gin.H) {
+	if ok := pkg_gin_custom_validators.IsPaginated(pagination); ok {
+		entries, statusCode, ginResp := c.listPaginatedEntryLogsByAccountID(ctx, accountID, pagination)
+		if statusCode != 0 {
+			return []sqlc_bank_account_store.EntryRecord{}, statusCode, ginResp
+		}
+
+		// TODO: beautify and filter entries
+		ctx.JSON(statusCode, entries)
+		return entries, statusCode, ginResp
+	}
+
+	entries, err := c.store.ListEntryLogsByAccountID(ctx, accountID)
+	if err != nil {
+		return []sqlc_bank_account_store.EntryRecord{},
+			http.StatusInternalServerError,
+			notification.ClientError.Response(err)
+	}
+
+	// TODO: beautify and filter entries
+	return entries, 0, gin.H{}
+}

@@ -27,6 +27,7 @@ func main() {
 	// TODO: pass database conn
 	deviceStore := sqlc_device_store.NewStore(&sql.DB{})
 	txStore := sqlc_bank_account_store.NewStore(&sql.DB{})
+
 	managerServer := manager_factory.NewManagerServer(
 		manager_models.Stores{
 			DeviceStore: deviceStore,

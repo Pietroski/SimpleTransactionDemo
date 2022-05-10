@@ -219,24 +219,13 @@ func (c *TransactionController) GetHistory(ctx *gin.Context) {
 		return
 	}
 
-	if ok := pkg_gin_custom_validators.IsPaginated(pagination); ok {
-		entries, statusCode, ginResp := c.listPaginatedEntryLogsByAccountID(ctx, accountID, pagination)
-		if statusCode != 0 {
-			ctx.JSON(statusCode, ginResp)
-			return
-		}
-
-		// TODO: beautify and filter entries
-		ctx.JSON(statusCode, entries)
-		return
-	}
-
-	entries, err := c.store.ListEntryLogsByAccountID(ctx, accountID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, notification.ClientError.Response(err))
+	entries, statusCode, ginResp = c.getFullHistory(ctx, accountID, pagination)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
 		return
 	}
 
 	// TODO: beautify and filter entries
-	ctx.JSON(http.StatusOK, entries)
+	ctx.JSON(statusCode, entries)
+	return
 }

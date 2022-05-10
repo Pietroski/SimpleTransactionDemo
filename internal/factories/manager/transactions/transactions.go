@@ -7,7 +7,7 @@ import (
 
 	bank_account_controller "github.com/Pietroski/SimpleTransactionDemo/internal/controllers/manager/transactions"
 	mocked_auth_middleware "github.com/Pietroski/SimpleTransactionDemo/internal/middlewares/auth/mocked"
-	internal_gin_custom_validators "github.com/Pietroski/SimpleTransactionDemo/internal/tools/gin/validators"
+	internal_gin_custom_validators "github.com/Pietroski/SimpleTransactionDemo/internal/tools/gin/validators/manager/transactions"
 )
 
 type TransactionFactory struct {
