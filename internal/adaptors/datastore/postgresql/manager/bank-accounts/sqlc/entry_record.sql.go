@@ -10,6 +10,49 @@ import (
 	"github.com/google/uuid"
 )
 
+const listCoinEntryLogsByAccountID = `-- name: ListCoinEntryLogsByAccountID :many
+SELECT row_id, account_id, wallet_id, coin, amount, created_at
+FROM entry_record
+WHERE account_id = $1
+  AND coin = $2
+ORDER BY row_id
+`
+
+type ListCoinEntryLogsByAccountIDParams struct {
+	AccountID uuid.UUID        `json:"accountID"`
+	Coin      CryptoCurrencies `json:"coin"`
+}
+
+func (q *Queries) ListCoinEntryLogsByAccountID(ctx context.Context, arg ListCoinEntryLogsByAccountIDParams) ([]EntryRecord, error) {
+	rows, err := q.query(ctx, q.listCoinEntryLogsByAccountIDStmt, listCoinEntryLogsByAccountID, arg.AccountID, arg.Coin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []EntryRecord{}
+	for rows.Next() {
+		var i EntryRecord
+		if err := rows.Scan(
+			&i.RowID,
+			&i.AccountID,
+			&i.WalletID,
+			&i.Coin,
+			&i.Amount,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEntryLogs = `-- name: ListEntryLogs :many
 SELECT row_id, account_id, wallet_id, coin, amount, created_at
 FROM entry_record
@@ -55,6 +98,57 @@ ORDER BY row_id
 
 func (q *Queries) ListEntryLogsByAccountID(ctx context.Context, accountID uuid.UUID) ([]EntryRecord, error) {
 	rows, err := q.query(ctx, q.listEntryLogsByAccountIDStmt, listEntryLogsByAccountID, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []EntryRecord{}
+	for rows.Next() {
+		var i EntryRecord
+		if err := rows.Scan(
+			&i.RowID,
+			&i.AccountID,
+			&i.WalletID,
+			&i.Coin,
+			&i.Amount,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPaginatedCoinEntryLogsByAccountID = `-- name: ListPaginatedCoinEntryLogsByAccountID :many
+SELECT row_id, account_id, wallet_id, coin, amount, created_at
+FROM entry_record
+WHERE account_id = $1
+  AND coin = $2
+ORDER BY row_id
+LIMIT $3 OFFSET $4
+`
+
+type ListPaginatedCoinEntryLogsByAccountIDParams struct {
+	AccountID uuid.UUID        `json:"accountID"`
+	Coin      CryptoCurrencies `json:"coin"`
+	Limit     int32            `json:"limit"`
+	Offset    int32            `json:"offset"`
+}
+
+func (q *Queries) ListPaginatedCoinEntryLogsByAccountID(ctx context.Context, arg ListPaginatedCoinEntryLogsByAccountIDParams) ([]EntryRecord, error) {
+	rows, err := q.query(ctx, q.listPaginatedCoinEntryLogsByAccountIDStmt, listPaginatedCoinEntryLogsByAccountID,
+		arg.AccountID,
+		arg.Coin,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +265,7 @@ func (q *Queries) ListPaginatedEntryLogsByAccountID(ctx context.Context, arg Lis
 
 const logEntry = `-- name: LogEntry :one
 INSERT INTO entry_record
-(account_id, wallet_id, coin, amount, created_at)
+    (account_id, wallet_id, coin, amount, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING row_id, account_id, wallet_id, coin, amount, created_at
 `

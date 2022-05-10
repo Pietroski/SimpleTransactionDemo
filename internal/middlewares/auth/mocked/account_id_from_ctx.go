@@ -1,10 +1,11 @@
 package mocked_auth_middleware
 
 import (
+	"net/http"
+
 	"github.com/Pietroski/SimpleTransactionDemo/internal/tools/notification"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
 )
 
 func AccountIdCtxExtractor(ctx *gin.Context) (uuid.UUID, int, gin.H) {

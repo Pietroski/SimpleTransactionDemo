@@ -2,8 +2,9 @@ package mocked_gin
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Context struct {

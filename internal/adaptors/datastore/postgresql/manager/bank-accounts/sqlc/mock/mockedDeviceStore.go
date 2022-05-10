@@ -126,6 +126,21 @@ func (mr *MockStoreMockRecorder) GetWalletsByAccountID(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletsByAccountID", reflect.TypeOf((*MockStore)(nil).GetWalletsByAccountID), arg0, arg1)
 }
 
+// ListCoinEntryLogsByAccountID mocks base method.
+func (m *MockStore) ListCoinEntryLogsByAccountID(arg0 context.Context, arg1 sqlc_bank_account_store.ListCoinEntryLogsByAccountIDParams) ([]sqlc_bank_account_store.EntryRecord, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListCoinEntryLogsByAccountID", arg0, arg1)
+	ret0, _ := ret[0].([]sqlc_bank_account_store.EntryRecord)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCoinEntryLogsByAccountID indicates an expected call of ListCoinEntryLogsByAccountID.
+func (mr *MockStoreMockRecorder) ListCoinEntryLogsByAccountID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCoinEntryLogsByAccountID", reflect.TypeOf((*MockStore)(nil).ListCoinEntryLogsByAccountID), arg0, arg1)
+}
+
 // ListEntryLogs mocks base method.
 func (m *MockStore) ListEntryLogs(arg0 context.Context) ([]sqlc_bank_account_store.EntryRecord, error) {
 	m.ctrl.T.Helper()
@@ -169,6 +184,21 @@ func (m *MockStore) ListFromAccountTransactionLogs(arg0 context.Context, arg1 uu
 func (mr *MockStoreMockRecorder) ListFromAccountTransactionLogs(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFromAccountTransactionLogs", reflect.TypeOf((*MockStore)(nil).ListFromAccountTransactionLogs), arg0, arg1)
+}
+
+// ListPaginatedCoinEntryLogsByAccountID mocks base method.
+func (m *MockStore) ListPaginatedCoinEntryLogsByAccountID(arg0 context.Context, arg1 sqlc_bank_account_store.ListPaginatedCoinEntryLogsByAccountIDParams) ([]sqlc_bank_account_store.EntryRecord, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPaginatedCoinEntryLogsByAccountID", arg0, arg1)
+	ret0, _ := ret[0].([]sqlc_bank_account_store.EntryRecord)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPaginatedCoinEntryLogsByAccountID indicates an expected call of ListPaginatedCoinEntryLogsByAccountID.
+func (mr *MockStoreMockRecorder) ListPaginatedCoinEntryLogsByAccountID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPaginatedCoinEntryLogsByAccountID", reflect.TypeOf((*MockStore)(nil).ListPaginatedCoinEntryLogsByAccountID), arg0, arg1)
 }
 
 // ListPaginatedEntryLogs mocks base method.

@@ -3,6 +3,8 @@ package transaction_controller
 import (
 	"net/http"
 
+	pkg_gin_custom_validators "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/gin/validators"
+
 	"github.com/gin-gonic/gin"
 
 	sqlc_bank_account_store "github.com/Pietroski/SimpleTransactionDemo/internal/adaptors/datastore/postgresql/manager/bank-accounts/sqlc"
@@ -159,9 +161,27 @@ func (c *TransactionController) GetWalletBalance(ctx *gin.Context) {
 }
 
 func (c *TransactionController) GetWallets(ctx *gin.Context) {
+	pagination, statusCode, ginResp := pkg_gin_custom_validators.IsCorrectlyPaginated(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
+		return
+	}
+
 	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
 	if statusCode != 0 {
 		ctx.JSON(statusCode, ginResp)
+		return
+	}
+
+	if ok := pkg_gin_custom_validators.IsPaginated(pagination); ok {
+		wallets, statusCode, ginResp := c.getPaginatedWalletsByAccountID(ctx, accountID, pagination)
+		if statusCode != 0 {
+			ctx.JSON(statusCode, ginResp)
+			return
+		}
+
+		// TODO: beautify and filter entries
+		ctx.JSON(statusCode, wallets)
 		return
 	}
 
@@ -176,9 +196,38 @@ func (c *TransactionController) GetWallets(ctx *gin.Context) {
 }
 
 func (c *TransactionController) GetHistory(ctx *gin.Context) {
+	pagination, statusCode, ginResp := pkg_gin_custom_validators.IsCorrectlyPaginated(ctx)
+	if statusCode != 0 {
+		ctx.JSON(statusCode, ginResp)
+		return
+	}
+
 	accountID, statusCode, ginResp := mocked_auth_middleware.AccountIdCtxExtractor(ctx)
 	if statusCode != 0 {
 		ctx.JSON(statusCode, ginResp)
+		return
+	}
+
+	entries, statusCode, ginResp := c.getCoinHistory(ctx, accountID, pagination)
+	switch {
+	case statusCode > 0:
+		ctx.JSON(statusCode, ginResp)
+		return
+	case statusCode == 0:
+		// TODO: beautify and filter entries
+		ctx.JSON(statusCode, entries)
+		return
+	}
+
+	if ok := pkg_gin_custom_validators.IsPaginated(pagination); ok {
+		entries, statusCode, ginResp := c.listPaginatedEntryLogsByAccountID(ctx, accountID, pagination)
+		if statusCode != 0 {
+			ctx.JSON(statusCode, ginResp)
+			return
+		}
+
+		// TODO: beautify and filter entries
+		ctx.JSON(statusCode, entries)
 		return
 	}
 

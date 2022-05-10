@@ -1,14 +1,15 @@
 package mocked_auth_middleware
 
 import (
+	"net/http"
+	"reflect"
+	"testing"
+
 	mocked_gin "github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/gin"
 	pkg_auth_extractor "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"reflect"
-	"testing"
 )
 
 func TestMockedAuthMiddleware(t *testing.T) {

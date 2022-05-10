@@ -1,10 +1,11 @@
 package mocked_auth_middleware
 
 import (
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCtxMockedKey_String(t *testing.T) {

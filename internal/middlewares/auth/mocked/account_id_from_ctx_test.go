@@ -2,13 +2,14 @@ package mocked_auth_middleware
 
 import (
 	"errors"
+	"net/http"
+	"reflect"
+	"testing"
+
 	"github.com/Pietroski/SimpleTransactionDemo/internal/tools/notification"
 	pkg_auth_extractor "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
-	"reflect"
-	"testing"
 )
 
 func TestAccountIdCtxExtractor(t *testing.T) {

@@ -2,8 +2,9 @@ package mocked_auth_middleware
 
 import (
 	"errors"
-	pkg_auth_extractor "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 	"net/http"
+
+	pkg_auth_extractor "github.com/Pietroski/SimpleTransactionDemo/pkg/tools/extractors/auth"
 
 	"github.com/gin-gonic/gin"
 )

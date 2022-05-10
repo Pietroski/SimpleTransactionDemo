@@ -37,6 +37,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getWalletsByAccountIDStmt, err = db.PrepareContext(ctx, getWalletsByAccountID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetWalletsByAccountID: %w", err)
 	}
+	if q.listCoinEntryLogsByAccountIDStmt, err = db.PrepareContext(ctx, listCoinEntryLogsByAccountID); err != nil {
+		return nil, fmt.Errorf("error preparing query ListCoinEntryLogsByAccountID: %w", err)
+	}
 	if q.listEntryLogsStmt, err = db.PrepareContext(ctx, listEntryLogs); err != nil {
 		return nil, fmt.Errorf("error preparing query ListEntryLogs: %w", err)
 	}
@@ -45,6 +48,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.listFromAccountTransactionLogsStmt, err = db.PrepareContext(ctx, listFromAccountTransactionLogs); err != nil {
 		return nil, fmt.Errorf("error preparing query ListFromAccountTransactionLogs: %w", err)
+	}
+	if q.listPaginatedCoinEntryLogsByAccountIDStmt, err = db.PrepareContext(ctx, listPaginatedCoinEntryLogsByAccountID); err != nil {
+		return nil, fmt.Errorf("error preparing query ListPaginatedCoinEntryLogsByAccountID: %w", err)
 	}
 	if q.listPaginatedEntryLogsStmt, err = db.PrepareContext(ctx, listPaginatedEntryLogs); err != nil {
 		return nil, fmt.Errorf("error preparing query ListPaginatedEntryLogs: %w", err)
@@ -109,6 +115,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getWalletsByAccountIDStmt: %w", cerr)
 		}
 	}
+	if q.listCoinEntryLogsByAccountIDStmt != nil {
+		if cerr := q.listCoinEntryLogsByAccountIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listCoinEntryLogsByAccountIDStmt: %w", cerr)
+		}
+	}
 	if q.listEntryLogsStmt != nil {
 		if cerr := q.listEntryLogsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listEntryLogsStmt: %w", cerr)
@@ -122,6 +133,11 @@ func (q *Queries) Close() error {
 	if q.listFromAccountTransactionLogsStmt != nil {
 		if cerr := q.listFromAccountTransactionLogsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listFromAccountTransactionLogsStmt: %w", cerr)
+		}
+	}
+	if q.listPaginatedCoinEntryLogsByAccountIDStmt != nil {
+		if cerr := q.listPaginatedCoinEntryLogsByAccountIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listPaginatedCoinEntryLogsByAccountIDStmt: %w", cerr)
 		}
 	}
 	if q.listPaginatedEntryLogsStmt != nil {
@@ -223,9 +239,11 @@ type Queries struct {
 	getPaginatedWalletsByAccountIDStmt          *sql.Stmt
 	getTxWalletStmt                             *sql.Stmt
 	getWalletsByAccountIDStmt                   *sql.Stmt
+	listCoinEntryLogsByAccountIDStmt            *sql.Stmt
 	listEntryLogsStmt                           *sql.Stmt
 	listEntryLogsByAccountIDStmt                *sql.Stmt
 	listFromAccountTransactionLogsStmt          *sql.Stmt
+	listPaginatedCoinEntryLogsByAccountIDStmt   *sql.Stmt
 	listPaginatedEntryLogsStmt                  *sql.Stmt
 	listPaginatedEntryLogsByAccountIDStmt       *sql.Stmt
 	listPaginatedFromAccountTransactionLogsStmt *sql.Stmt
@@ -241,18 +259,20 @@ type Queries struct {
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                                    tx,
-		tx:                                    tx,
-		getAccountWalletsStmt:                 q.getAccountWalletsStmt,
-		getPaginatedAccountWalletsStmt:        q.getPaginatedAccountWalletsStmt,
-		getPaginatedWalletsByAccountIDStmt:    q.getPaginatedWalletsByAccountIDStmt,
-		getTxWalletStmt:                       q.getTxWalletStmt,
-		getWalletsByAccountIDStmt:             q.getWalletsByAccountIDStmt,
-		listEntryLogsStmt:                     q.listEntryLogsStmt,
-		listEntryLogsByAccountIDStmt:          q.listEntryLogsByAccountIDStmt,
-		listFromAccountTransactionLogsStmt:    q.listFromAccountTransactionLogsStmt,
-		listPaginatedEntryLogsStmt:            q.listPaginatedEntryLogsStmt,
-		listPaginatedEntryLogsByAccountIDStmt: q.listPaginatedEntryLogsByAccountIDStmt,
+		db:                                 tx,
+		tx:                                 tx,
+		getAccountWalletsStmt:              q.getAccountWalletsStmt,
+		getPaginatedAccountWalletsStmt:     q.getPaginatedAccountWalletsStmt,
+		getPaginatedWalletsByAccountIDStmt: q.getPaginatedWalletsByAccountIDStmt,
+		getTxWalletStmt:                    q.getTxWalletStmt,
+		getWalletsByAccountIDStmt:          q.getWalletsByAccountIDStmt,
+		listCoinEntryLogsByAccountIDStmt:   q.listCoinEntryLogsByAccountIDStmt,
+		listEntryLogsStmt:                  q.listEntryLogsStmt,
+		listEntryLogsByAccountIDStmt:       q.listEntryLogsByAccountIDStmt,
+		listFromAccountTransactionLogsStmt: q.listFromAccountTransactionLogsStmt,
+		listPaginatedCoinEntryLogsByAccountIDStmt:   q.listPaginatedCoinEntryLogsByAccountIDStmt,
+		listPaginatedEntryLogsStmt:                  q.listPaginatedEntryLogsStmt,
+		listPaginatedEntryLogsByAccountIDStmt:       q.listPaginatedEntryLogsByAccountIDStmt,
 		listPaginatedFromAccountTransactionLogsStmt: q.listPaginatedFromAccountTransactionLogsStmt,
 		listPaginatedToAccountTransactionLogsStmt:   q.listPaginatedToAccountTransactionLogsStmt,
 		listPaginatedTransactionLogsStmt:            q.listPaginatedTransactionLogsStmt,

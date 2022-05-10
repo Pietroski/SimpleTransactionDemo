@@ -9,4 +9,4 @@ import _ "github.com/golang/mock/mockgen/model"
 
 // external - usually server clients
 //go:generate mockgen -package mocked_gin -destination ../../../pkg/mocks/gin/mocked_response_writer.go github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/gin ResponseWriter
-////go:generate mockgen -package mocked_gin -destination ../../../pkg/mocks/gin/mocked_context.go github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/gin Ctx
+//go:generate mockgen -package mocked_validator_v10 -destination ../../../pkg/mocks/validator-v10/mocked_validator.go github.com/Pietroski/SimpleTransactionDemo/pkg/mocks/validator-v10 FieldLevelValidator
